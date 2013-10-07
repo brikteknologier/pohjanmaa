@@ -1,6 +1,6 @@
 var assert = require('assert');
 var request = require('supertest');
-var dredis = require('disposable-redis').server;
+var dredis = require('disposable-redis').client;
 
 var maa = require('../');
 
@@ -8,7 +8,7 @@ describe('pohjanmaa', function() {
   var redis;
   var dclient;
   before(function(done) {
-    dredis.server(function(err, client) {
+    dredis(function(err, client) {
       if (err) return done(err);
       dclient = client;
       redis = client.client;
@@ -16,10 +16,17 @@ describe('pohjanmaa', function() {
     });
   });
   beforeEach(function(done) {
-    client.flushall(done);
+    redis.flushall(done);
   });
-  after(function(done) {
-    dclient.close(done);
+  after(function() {
+    dclient.close();
   });
   
+  it('should save a an object under a key', function(done) {
+    request(maa)
+      .post('/object')
+      .send({ potato: 'om nom' })
+      .expect(201)
+      .end(done)
+  });
 });
