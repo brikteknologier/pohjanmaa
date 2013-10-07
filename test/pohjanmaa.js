@@ -7,7 +7,7 @@ var maa = require('../');
 describe('pohjanmaa', function() {
   var redis;
   var dclient;
-  beforeAll(function(done) {
+  before(function(done) {
     dredis.server(function(err, client) {
       if (err) return done(err);
       dclient = client;
@@ -15,10 +15,10 @@ describe('pohjanmaa', function() {
       done();
     });
   });
-  before(function(done) {
+  beforeEach(function(done) {
     client.flushall(done);
   });
-  afterAll(function(done) {
+  after(function(done) {
     dclient.close(done);
   });
   
