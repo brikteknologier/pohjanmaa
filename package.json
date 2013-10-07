@@ -19,5 +19,8 @@
     "update"
   ],
   "author": "Jon Packer",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "mocha": "~1.13.0"
+  }
 }
