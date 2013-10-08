@@ -1,6 +1,6 @@
 var path = require('object-path');
 module.exports = function(app, redis) {
-  app.get('/:domain/:keypath?', function(req, res) {
+  app.get('/:domain/:keypath?', function(req, res, next) {
     redis.get(req.params.domain, function(err, config) {
       if (err) return next(err);
       else if (config == null) return res.send(404);
@@ -19,7 +19,7 @@ module.exports = function(app, redis) {
     })
   });
 
-  app.post('/:domain', function(req, res) {
+  app.post('/:domain', function(req, res, next) {
     redis.setnx(req.params.domain, function(err, success) {
       if (err) return next(err);
       else if (!success) return res.send(409);
