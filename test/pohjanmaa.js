@@ -1,6 +1,7 @@
 var assert = require('assert');
 var request = require('supertest');
 var dredis = require('disposable-redis').client;
+var async = require('async');
 
 describe('pohjanmaa', function() {
   var redis;
@@ -144,5 +145,37 @@ describe('pohjanmaa', function() {
               });
           })
       })
+  });
+
+  it('should update atomically', function(done) {
+    var t = 80;
+    function create(done) {
+      request(maa).post('/object').send({a:0, b:0}).end(done);
+    };
+    function incr_a(num, done) {
+      request(maa).get('/object/a').end(function(err, res) {
+        request(maa).put('/object/a')
+          .set('Content-Type', 'application/json')
+          .send(String(res.text - -1))
+          .end(done);
+      });
+    }
+    function incr_b(num, done) {
+      request(maa).get('/object/b').end(function(err, res) {
+        request(maa).put('/object/b')
+          .set('Content-Type', 'application/json')
+          .send(String(res.text - -1))
+          .end(done);
+        });
+    }
+    async.auto({
+      create: create,
+      incr_a: ['create', function(cb) { async.timesSeries(t, incr_a, cb); }],
+      incr_b: ['create', function(cb) { async.timesSeries(t, incr_b, cb); }]
+    }, function(err) {
+      request(maa).get('/object')
+        .expect({a:t, b:t})
+        .end(done);
+    });
   });
 });
