@@ -30,4 +30,36 @@ module.exports = function(app, redis) {
       else res.json(value);
     })
   });
+
+  app.put('/:domain/:keypath?', function(req, res, next) {
+    if (!req.params.keypath) {
+      if (typeof req.body != 'object' || Array.isArray(req.body))
+        return req.send(400, 'A config must be an object');
+      
+      var config = JSON.stringify(req.body)
+      redis.set(req.params.domain, config, function(err, success) {
+        if (err) return next(err);
+        else if (!success) return res.send(500, 'Redis save failed');
+        else res.json(config);
+      });
+      return;
+    }
+
+    redis.get(req.params.domain, function(err, config) {
+      if (err) return next(err);
+      else if (config == null) return res.send(404);
+
+      if (!req.params.keypath) {
+        // can relay the unparsed JSON string directly from redis
+        res.set('Content-Type', 'application/json');
+        return res.send(config);
+      }
+
+      config = JSON.parse(config);
+      var value = path.get(config, keypath)
+
+      if (value == null) return res.send(404);
+      else res.json(value);
+    })
+  });
 };
