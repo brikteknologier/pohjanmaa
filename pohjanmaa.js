@@ -15,6 +15,8 @@ var app = express();
 var server = module.exports = http.createServer(app);
 var redis = nredis.createClient(argv['redis-port'], argv['redis-host']);
 
+require('./routes')(app, redis);
+
 server.listen(argv.port, function(err) {
   if (err) {
     console.error("Couldn't listen on port", argv.port, "-", err);
