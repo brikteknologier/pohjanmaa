@@ -1,5 +1,8 @@
 var path = require('object-path');
+var async = require('async');
 module.exports = function(app, redis) {
+  var queue = require('./queue');
+
   app.post('/:domain', function(req, res, next) {
     if (typeof req.body != 'object' || Array.isArray(req.body))
       return req.send(400, 'New configs must be an object');
@@ -39,18 +42,21 @@ module.exports = function(app, redis) {
         return save(req.body);
     }
 
-    redis.get(req.params.domain, function(err, config) {
-      if (err) return next(err);
-      else if (config == null) return res.send(404);
-      
-      config = JSON.parse(config);
-      path.set(config, req.params.keypath, req.body)
-      save(config);
-    })
+    queue(function(done) {
+      redis.get(req.params.domain, function(err, config) {
+        if (err) return next(err);
+        else if (config == null) return res.send(404);
+        
+        config = JSON.parse(config);
+        path.set(config, req.params.keypath, req.body)
+        save(config, done);
+      })
+    });
 
-    function save(config) {
+    function save(config, callback) {
       config = JSON.stringify(config);
       redis.set(req.params.domain, config, function(err, success) {
+        callback && callback();
         if (err) return next(err);
         else if (!success) return res.send(500, 'Redis save failed');
         else {
