@@ -29,4 +29,17 @@ describe('pohjanmaa', function() {
       .expect(201)
       .end(done)
   });
+  it('should read an object under a key', function(done) {
+    request(maa)
+      .post('/object')
+      .send({ potato: 'om nom' })
+      .expect(201)
+      .end(function(err) {
+        assert(!err, err);
+        request(maa).get('/object')
+          .expect({ potato: 'om nom' })
+          .expect(200)
+          .end(done);
+      })
+  });
 });
