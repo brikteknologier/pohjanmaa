@@ -1,6 +1,5 @@
 var express = require('express'),
     http = require('http'),
-    path = require('object-path'),
     nredis = require('redis');
 
 var opts = require('optimist')
