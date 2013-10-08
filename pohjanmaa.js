@@ -18,10 +18,19 @@ var redis = nredis.createClient(argv['redis-port'], argv['redis-host']);
 
 server.listen(argv.port, function(err) {
   if (err) {
-    console.log("Couldn't listen on port", argv.port, "-", err);
+    console.error("Couldn't listen on port", argv.port, "-", err);
     process.exit(1);
   } 
 
-  console.log("Pohjanmaa listening on port", argv.port, "over redis server at",
+  console.log("Pohjanmaa server listening on port", argv.port);
+});
+
+redis.on('error', function(err) {
+  console.error("Couldn't connect to redis instance at", 
+                argv['redis-host'] + ':' + argv['redis-port']);
+  process.exit(1);
+});
+redis.on('connect', function() {
+  console.log("Connected to redis server at",
               argv['redis-host'] + ':' + argv['redis-port']);
 });
