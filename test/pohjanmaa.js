@@ -2,16 +2,17 @@ var assert = require('assert');
 var request = require('supertest');
 var dredis = require('disposable-redis').client;
 
-var maa = require('../');
-
 describe('pohjanmaa', function() {
   var redis;
   var dclient;
+  var maa;
   before(function(done) {
     dredis(function(err, client) {
       if (err) return done(err);
       dclient = client;
       redis = client.client;
+      process.argv = ['node', 'pohjanmaa', '--redis-port', redis.port];
+      maa = require('../');
       done();
     });
   });
