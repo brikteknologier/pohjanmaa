@@ -5,8 +5,13 @@ module.exports = function(app, redis) {
       if (err) return next(err);
       else if (config == null) return res.send(404);
 
-      if (!req.params.keypath) return res.json(config);
+      if (!req.params.keypath) {
+        // can relay the unparsed JSON string directly from redis
+        res.set('Content-Type', 'application/json');
+        return res.send(config);
+      }
 
+      config = JSON.parse(config);
       var value = path.get(config, keypath)
 
       if (value == null) return res.send(404);
