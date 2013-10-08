@@ -24,7 +24,7 @@ module.exports = function(app, redis) {
       }
 
       config = JSON.parse(config);
-      var value = path.get(config, keypath)
+      var value = path.get(config, req.params.keypath)
 
       if (value == null) return res.send(404);
       else res.json(value);

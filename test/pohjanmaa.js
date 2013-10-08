@@ -71,7 +71,7 @@ describe('pohjanmaa', function() {
       .end(function(err) {
         assert(!err, err);
         request(maa).get('/object/thing.stuff')
-          .expect('omg-amazing')
+          .expect('"omg-amazing"')
           .expect(200)
           .end(done);
       })
