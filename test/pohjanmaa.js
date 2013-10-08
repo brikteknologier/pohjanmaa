@@ -89,4 +89,60 @@ describe('pohjanmaa', function() {
           .end(done);
       })
   });
+
+  it('should update a keypath', function(done) {
+    request(maa)
+      .post('/object')
+      .send({ potato: 'om nom', thing: { stuff: 'omg-amazing' } })
+      .expect(201)
+      .end(function(err) {
+        assert(!err, err);
+        request(maa).put('/object/thing.stuff')
+          .send({ newthing: 'stuff' })
+          .expect(200)
+          .end(function(err) {
+            assert(!err, err);
+            request(maa).get('/object/thing.stuff.newthing')
+              .expect('"stuff"')
+              .expect(200)
+              .end(function(err) {
+                assert(!err, err);
+                request(maa).get('/object')
+                  .expect({ potato: 'om nom',
+                            thing: { stuff: { newthing: 'stuff' } } })
+                  .expect(200)
+                  .end(done);
+              });
+          })
+      })
+  });
+
+  it('should add new data with a keypath', function(done) {
+    request(maa)
+      .post('/object')
+      .send({ potato: 'om nom', thing: { stuff: 'omg-amazing' } })
+      .expect(201)
+      .end(function(err) {
+        assert(!err, err);
+        request(maa).put('/object/pizza.amazing.thing')
+          .send({ newthing: 'stuff' })
+          .expect(200)
+          .end(function(err) {
+            assert(!err, err);
+            request(maa).get('/object/pizza.amazing.thing.newthing')
+              .expect('"stuff"')
+              .expect(200)
+              .end(function(err) {
+                assert(!err, err);
+                request(maa).get('/object')
+                  .expect({ potato: 'om nom',
+                            thing: { stuff: 'omg-amazing' },
+                            pizza: { amazing: { thing: { newthing: 'stuff' } } }
+                            })
+                  .expect(200)
+                  .end(done);
+              });
+          })
+      })
+  });
 });
