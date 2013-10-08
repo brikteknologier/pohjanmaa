@@ -20,7 +20,10 @@ module.exports = function(app, redis) {
   });
 
   app.post('/:domain', function(req, res, next) {
-    redis.setnx(req.params.domain, function(err, success) {
+    if (typeof req.body != 'object' || Array.isArray(req.body))
+      return req.send(400, 'New configs must be an object');
+
+    redis.setnx(req.params.domain, req.body, function(err, success) {
       if (err) return next(err);
       else if (!success) return res.send(409);
       else return res.send(201);
