@@ -11,7 +11,7 @@ describe('pohjanmaa', function() {
       if (err) return done(err);
       dclient = client;
       redis = client.client;
-      process.argv = ['node', 'pohjanmaa', '--redis-port', redis.port];
+      process.argv = ['node', 'pohjanmaa', '--redis-port', String(redis.port)];
       maa = require('../');
       done();
     });
