@@ -18,4 +18,12 @@ module.exports = function(app, redis) {
       else res.json(value);
     })
   });
+
+  app.post('/:domain', function(req, res) {
+    redis.setnx(req.params.domain, function(err, success) {
+      if (err) return next(err);
+      else if (!success) return res.send(409);
+      else return res.send(201);
+    });
+  });
 };
