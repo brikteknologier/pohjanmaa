@@ -15,6 +15,7 @@ var app = express();
 var server = module.exports = http.createServer(app);
 var redis = nredis.createClient(argv['redis-port'], argv['redis-host']);
 
+app.use(express.bodyParser({strict: false}));
 require('./routes')(app, redis);
 
 server.listen(argv.port, function(err) {
