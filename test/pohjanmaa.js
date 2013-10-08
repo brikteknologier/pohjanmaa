@@ -62,4 +62,31 @@ describe('pohjanmaa', function() {
           })
       })
   });
+  
+  it('should retrieve a keypath', function(done) {
+    request(maa)
+      .post('/object')
+      .send({ potato: 'om nom', thing: { stuff: 'omg-amazing' } })
+      .expect(201)
+      .end(function(err) {
+        assert(!err, err);
+        request(maa).get('/object/thing.stuff')
+          .expect('omg-amazing')
+          .expect(200)
+          .end(done);
+      })
+  });
+
+  it('should not retrieve a non-existant keypath', function(done) {
+    request(maa)
+      .post('/object')
+      .send({ potato: 'om nom', thing: { stuff: 'omg-amazing' } })
+      .expect(201)
+      .end(function(err) {
+        assert(!err, err);
+        request(maa).get('/object/stuff.thing')
+          .expect(404)
+          .end(done);
+      })
+  });
 });
