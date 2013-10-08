@@ -43,4 +43,23 @@ describe('pohjanmaa', function() {
           .end(done);
       })
   });
+  it('should update an object', function(done) {
+    request(maa)
+      .post('/object')
+      .send({ potato: 'om nom' })
+      .expect(201)
+      .end(function(err) {
+        assert(!err, err);
+        request(maa).put('/object')
+          .send({ beer: 'tasty' })
+          .expect(200)
+          .end(function(err) {
+            assert(!err, err);
+            request(maa).get('/object')
+              .expect({ beer: 'tasty' })
+              .expect(200)
+              .end(done);
+          })
+      })
+  });
 });
