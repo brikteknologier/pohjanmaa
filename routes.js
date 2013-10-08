@@ -23,7 +23,8 @@ module.exports = function(app, redis) {
     if (typeof req.body != 'object' || Array.isArray(req.body))
       return req.send(400, 'New configs must be an object');
 
-    redis.setnx(req.params.domain, req.body, function(err, success) {
+    var config = JSON.stringify(req.body);
+    redis.setnx(req.params.domain, config, function(err, success) {
       if (err) return next(err);
       else if (!success) return res.send(409);
       else return res.send(201);
