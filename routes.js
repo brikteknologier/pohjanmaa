@@ -33,5 +33,16 @@ module.exports = function(app, redis) {
       else res.json(config);
     });
   });
-
+  app.put('/!multi/:domains/:keypath?', function(req, res, next) {
+    var domains = req.params.domains.split(',');
+    async.map(domains, function(domain, callback) {
+      db.update(domain, req.params.keypath, req.body, callback);
+    }, function(err, results) {
+      if (err) {
+        if (!err.statusCode) next(err);
+        else res.send(err.statusCode, err.message);
+      } 
+      else res.json(results);
+    });
+  });
 };
