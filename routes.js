@@ -1,14 +1,14 @@
 var path = require('object-path');
 var async = require('async');
+var persist = require('./persist');
 module.exports = function(app, redis) {
-  var queue = require('./queue');
-
+  var db = persist(redis);
   app.post('/:domain', function(req, res, next) {
     if (typeof req.body != 'object' || Array.isArray(req.body))
       return req.send(400, 'New configs must be an object');
 
     var config = JSON.stringify(req.body);
-    redis.setnx(req.params.domain, config, function(err, success) {
+    db.create(req.params.domain, config, function(err, success) {
       if (err) return next(err);
       else if (!success) return res.send(409);
       else return res.send(201);
@@ -16,54 +16,22 @@ module.exports = function(app, redis) {
   });
 
   app.get('/:domain/:keypath?', function(req, res, next) {
-    redis.get(req.params.domain, function(err, config) {
+    db.read(req.params.domain, req.params.keypath, function(err, config) {
       if (err) return next(err);
       else if (config == null) return res.send(404);
-
-      if (!req.params.keypath) {
-        // can relay the unparsed JSON string directly from redis
-        res.set('Content-Type', 'application/json');
-        return res.send(config);
-      }
-
-      config = JSON.parse(config);
-      var value = path.get(config, req.params.keypath)
-
-      if (value == null) return res.send(404);
-      else res.json(value);
+      else res.json(config);
     })
   });
 
   app.put('/:domain/:keypath?', function(req, res, next) {
-    if (!req.params.keypath) {
-      if (typeof req.body != 'object' || Array.isArray(req.body))
-        return req.send(400, 'A config must be an object');
-      else
-        return save(req.body);
-    }
-
-    queue(function(done) {
-      redis.get(req.params.domain, function(err, config) {
-        if (err) return next(err);
-        else if (config == null) return res.send(404);
-        
-        config = JSON.parse(config);
-        path.set(config, req.params.keypath, req.body)
-        save(config, done);
-      })
+    db.update(req.params.domain, req.params.keypath, req.body, function(err, config) {
+      if (err) {
+        if (!err.statusCode) next(err);
+        else res.send(err.statusCode, err.message);
+      } 
+      else if (!config) res.send(500, 'Redis save failed');
+      else res.json(config);
     });
-
-    function save(config, callback) {
-      config = JSON.stringify(config);
-      redis.set(req.params.domain, config, function(err, success) {
-        callback && callback();
-        if (err) return next(err);
-        else if (!success) return res.send(500, 'Redis save failed');
-        else {
-          res.set('Content-Type', 'application/json');
-          return res.send(config);
-        }
-      });
-    }
   });
+
 };
