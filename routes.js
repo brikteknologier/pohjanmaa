@@ -23,16 +23,6 @@ module.exports = function(app, redis) {
     })
   });
 
-  app.put('/:domain/:keypath?', function(req, res, next) {
-    db.update(req.params.domain, req.params.keypath, req.body, function(err, config) {
-      if (err) {
-        if (!err.statusCode) next(err);
-        else res.send(err.statusCode, err.message);
-      } 
-      else if (!config) res.send(500, 'Redis save failed');
-      else res.json(config);
-    });
-  });
   app.put('/!multi/:domains/:keypath?', function(req, res, next) {
     var domains = req.params.domains.split(',');
     async.map(domains, function(domain, callback) {
@@ -43,6 +33,17 @@ module.exports = function(app, redis) {
         else res.send(err.statusCode, err.message);
       } 
       else res.json(results);
+    });
+  });
+
+  app.put('/:domain/:keypath?', function(req, res, next) {
+    db.update(req.params.domain, req.params.keypath, req.body, function(err, config) {
+      if (err) {
+        if (!err.statusCode) next(err);
+        else res.send(err.statusCode, err.message);
+      } 
+      else if (!config) res.send(500, 'Redis save failed');
+      else res.json(config);
     });
   });
 };

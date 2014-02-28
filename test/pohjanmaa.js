@@ -164,7 +164,7 @@ describe('pohjanmaa', function() {
           })
       })
   });
-
+  
   it('should add new data with a keypath', function(done) {
     request(maa)
       .post('/object')
