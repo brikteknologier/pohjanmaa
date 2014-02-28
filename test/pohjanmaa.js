@@ -118,6 +118,53 @@ describe('pohjanmaa', function() {
       })
   });
 
+  it('should update multiple keypaths', function(done) {
+    request(maa)
+      .post('/object')
+      .send({ potato: 'om nom', thing: { stuff: 'omg-amazing' } })
+      .expect(201)
+      .end(function(err) {
+        assert(!err, err);
+        request(maa)
+          .post('/object_2')
+          .send({ potato: 'om nom', thing: { stuff: 'omg-amazing' } })
+          .expect(201)
+          .end(function(err) {
+            assert(!err, err);
+            request(maa).put('/!multi/object,object_2/thing.stuff')
+              .send({ newthing: 'stuff' })
+              .expect(200)
+              .end(function(err) {
+                assert(!err, err);
+                request(maa).get('/object/thing.stuff.newthing')
+                  .expect('"stuff"')
+                  .expect(200)
+                  .end(function(err) {
+                    assert(!err, err);
+                    request(maa).get('/object')
+                      .expect({ potato: 'om nom',
+                                thing: { stuff: { newthing: 'stuff' } } })
+                      .expect(200)
+                      .end(function(err) {
+                        assert(!err, err);
+                        request(maa).get('/object/thing.stuff.newthing')
+                          .expect('"stuff"')
+                          .expect(200)
+                          .end(function(err) {
+                            assert(!err, err);
+                            request(maa).get('/object_2')
+                              .expect({ potato: 'om nom',
+                                        thing: { stuff: { newthing: 'stuff' } } })
+                              .expect(200)
+                              .end(done);
+                          });
+                      });
+                  });
+              })
+          })
+      })
+  });
+
   it('should add new data with a keypath', function(done) {
     request(maa)
       .post('/object')
