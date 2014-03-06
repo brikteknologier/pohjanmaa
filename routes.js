@@ -15,6 +15,21 @@ module.exports = function(app, redis) {
     });
   });
 
+  app.get('/!multi/:domains/:keypath?', function(req, res, next) {
+    var domains = req.params.domains.split(',');
+    async.map(domains, function(domain, callback) {
+      db.read(domain, req.params.keypath, callback);
+    }, function(err, data) {
+      if (err) return next(err);
+
+      var result = {};
+      domains.forEach(function(domain, i) {
+        result[domain] = data[i];
+      });
+      res.json(result);
+    });
+  });
+
   app.get('/:domain/:keypath?', function(req, res, next) {
     db.read(req.params.domain, req.params.keypath, function(err, config) {
       if (err) return next(err);

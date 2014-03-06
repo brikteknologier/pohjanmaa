@@ -44,6 +44,26 @@ describe('pohjanmaa', function() {
           .end(done);
       })
   });
+  it('should read an object under multiple keys', function(done) {
+    request(maa)
+      .post('/object')
+      .send({ potato: 'om nom' })
+      .expect(201)
+      .end(function(err) {
+        assert(!err, err);
+        request(maa)
+          .post('/object2')
+          .send({ potato: 'om nom' })
+          .expect(201)
+          .end(function(err) {
+            assert(!err, err);
+            request(maa).get('/!multi/object,object2')
+              .expect({object: { potato: 'om nom' }, object2: { potato: 'om nom' }})
+              .expect(200)
+              .end(done);
+          })
+      })
+  });
   it('should update an object', function(done) {
     request(maa)
       .post('/object')
