@@ -44,6 +44,24 @@ describe('pohjanmaa', function() {
           .end(done);
       })
   });
+  it('should delete an object under a key', function(done) {
+    request(maa)
+      .post('/object')
+      .send({ potato: 'om nom' })
+      .expect(201)
+      .end(function(err) {
+        request(maa)
+          .del('/object/potato')
+          .expect(204)
+          .end(function(err) {
+            assert(!err, err);
+            request(maa).get('/object')
+              .expect({ })
+              .expect(200)
+              .end(done);
+          })
+      })
+  });
   it('should read an object under multiple keys', function(done) {
     request(maa)
       .post('/object')

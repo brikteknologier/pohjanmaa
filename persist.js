@@ -24,6 +24,26 @@ module.exports = function(redis) {
         else callback(null, path.get(config, keypath));
       })
     },
+    delete: function(domain, keypath, callback) {
+      queue(function(done) {
+        redis.get(domain, function(err, config) {
+          if (err) return callback(err), done();
+          else if (config == null) {
+            done();
+            var error = new Error('No such configuration');
+            error.statusCode = 404;
+            return callback(error);
+          }
+          
+          config = JSON.parse(config);
+          path.set(config, keypath, undefined)
+          unsafeSave(domain, config, function(err, success) {
+            done();
+            callback(err, success);
+          });
+        })
+      });
+    },
     update: function(domain, keypath, value, callback) {
       if (!keypath) {
         if (typeof value != 'object' || Array.isArray(value)) {
