@@ -1,4 +1,6 @@
 var path = require('object-path');
+var as = require('async');
+var deepExtend = require('deep-extend');
 module.exports = function(redis) {
   var queue = require('./queue');
 
@@ -9,17 +11,29 @@ module.exports = function(redis) {
     });
   }
 
+  function readConfig(domain, callback) {
+    as.parallel({
+      overlay: redis.get.bind(redis, domain),
+      default: redis.get.bind(redis, '_default')
+    }, function(err, results) {
+      if (err) return callback(err);
+      if (results.overlay == null) return callback();
+      if (results.default == null) results.default = "{}";
+      
+      var results = [results.default, results.overlay].map(JSON.parse)
+      deepExtend(results[0], results[1]);
+      callback(null, results[0]);
+    });
+  }
+
   return {
     create: function(domain, config, callback) {
       redis.setnx(domain, config, callback);
     },
     read: function(domain, keypath, callback) {
-      redis.get(domain, function(err, config) {
+      readConfig(domain, function(err, config) {
         if (err) return callback(err);
         else if (config == null) return callback();
-
-        config = JSON.parse(config);
-        
         if (!keypath) callback(null, config);
         else callback(null, path.get(config, keypath));
       })
@@ -67,6 +81,7 @@ module.exports = function(redis) {
           
           config = JSON.parse(config);
           path.set(config, keypath, value)
+
           unsafeSave(domain, config, function(err, success) {
             done();
             callback(err, success);
