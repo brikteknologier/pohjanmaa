@@ -129,6 +129,26 @@ describe('pohjanmaa', function() {
       })
   });
 
+  it('should use a default base configuration', function(done) {
+    request(maa)
+      .post('/_default')
+      .send({ potato: 'om nom', thing: { stuff: 'omg-amazing' } })
+      .expect(201)
+      .end(function(err) {
+        assert(!err, err);
+        request(maa).post('/stuff')
+          .send({ thing: { omg: 'wat' } })
+          .expect(201)
+          .end(function(err) {
+            assert(!err, err);
+            request(maa).get('/stuff')
+              .expect({ potato: 'om nom', thing: { stuff: 'omg-amazing', omg: 'wat' }})
+              .expect(200)
+              .end(done);
+          })
+      })
+  });
+
   it('should update a keypath', function(done) {
     request(maa)
       .post('/object')
