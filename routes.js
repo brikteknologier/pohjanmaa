@@ -62,7 +62,7 @@ module.exports = function(app, redis) {
     });
   });
 
-  app.delete('/:domain/:keypath', function(req, res, next) {
+  app.delete('/:domain/:keypath?', function(req, res, next) {
     db.delete(req.params.domain, req.params.keypath, function(err, config) {
       if (err) {
         if (!err.statusCode) next(err);

@@ -39,6 +39,8 @@ module.exports = function(redis) {
       })
     },
     delete: function(domain, keypath, callback) {
+      if (keypath == null) return redis.del(domain, callback);
+
       queue(function(done) {
         redis.get(domain, function(err, config) {
           if (err) return callback(err), done();
