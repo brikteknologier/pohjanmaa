@@ -4,7 +4,7 @@
   "description": "serve and manage atomic updating of a bunch of configs",
   "main": "pohjanmaa.js",
   "scripts": {
-    "test": "mocha -R spec"
+    "test": "mocha -R spec -t 5000"
   },
   "repository": {
     "type": "git",
