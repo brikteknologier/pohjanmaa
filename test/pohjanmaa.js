@@ -129,6 +129,24 @@ describe('pohjanmaa', function() {
       })
   });
 
+  it('should delete a config', function(done) {
+    request(maa)
+      .post('/object')
+      .send({ potato: 'om nom', thing: { stuff: 'omg-amazing' } })
+      .expect(201)
+      .end(function(err) {
+        request(maa)
+          .del('/object')
+          .expect(204)
+          .end(function(err) {
+            assert(!err, err);
+            request(maa).get('/object')
+              .expect(404)
+              .end(done);
+          })
+      })
+  });
+
   it('should use a default base configuration', function(done) {
     request(maa)
       .post('/_default')
