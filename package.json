@@ -1,6 +1,6 @@
 {
   "name": "pohjanmaa",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "serve and manage atomic updating of a bunch of configs",
   "main": "pohjanmaa.js",
   "scripts": {
