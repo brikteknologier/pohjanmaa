@@ -39,7 +39,7 @@ describe('pohjanmaa', function() {
       .end(function(err) {
         assert(!err, err);
         request(maa).get('/object')
-          .expect({ potato: 'om nom' })
+          .expect({ potato: 'om nom', id: 'object' })
           .expect(200)
           .end(done);
       })
@@ -56,7 +56,7 @@ describe('pohjanmaa', function() {
           .end(function(err) {
             assert(!err, err);
             request(maa).get('/object')
-              .expect({ })
+              .expect({ id: 'object' })
               .expect(200)
               .end(done);
           })
@@ -76,7 +76,7 @@ describe('pohjanmaa', function() {
           .end(function(err) {
             assert(!err, err);
             request(maa).get('/!multi/object,object2')
-              .expect({object: { potato: 'om nom' }, object2: { potato: 'om nom' }})
+              .expect({object: { potato: 'om nom', id: 'object' }, object2: { potato: 'om nom', id: 'object2' }})
               .expect(200)
               .end(done);
           })
@@ -95,7 +95,7 @@ describe('pohjanmaa', function() {
           .end(function(err) {
             assert(!err, err);
             request(maa).get('/object')
-              .expect({ beer: 'tasty' })
+              .expect({ beer: 'tasty', id: 'object' })
               .expect(200)
               .end(done);
           })
@@ -160,7 +160,7 @@ describe('pohjanmaa', function() {
           .end(function(err) {
             assert(!err, err);
             request(maa).get('/stuff')
-              .expect({ potato: 'om nom', thing: { stuff: 'omg-amazing', omg: 'wat' }})
+              .expect({ potato: 'om nom', id: 'stuff', thing: { stuff: 'omg-amazing', omg: 'wat' }})
               .expect(200)
               .end(done);
           })
@@ -185,7 +185,7 @@ describe('pohjanmaa', function() {
               .end(function(err) {
                 assert(!err, err);
                 request(maa).get('/object')
-                  .expect({ potato: 'om nom',
+                  .expect({ potato: 'om nom', id: 'object',
                             thing: { stuff: { newthing: 'stuff' } } })
                   .expect(200)
                   .end(done);
@@ -218,7 +218,7 @@ describe('pohjanmaa', function() {
                   .end(function(err) {
                     assert(!err, err);
                     request(maa).get('/object')
-                      .expect({ potato: 'om nom',
+                      .expect({ potato: 'om nom', id: 'object',
                                 thing: { stuff: { newthing: 'stuff' } } })
                       .expect(200)
                       .end(function(err) {
@@ -229,7 +229,7 @@ describe('pohjanmaa', function() {
                           .end(function(err) {
                             assert(!err, err);
                             request(maa).get('/object_2')
-                              .expect({ potato: 'om nom',
+                              .expect({ potato: 'om nom', id: 'object_2',
                                         thing: { stuff: { newthing: 'stuff' } } })
                               .expect(200)
                               .end(done);
@@ -259,7 +259,7 @@ describe('pohjanmaa', function() {
               .end(function(err) {
                 assert(!err, err);
                 request(maa).get('/object')
-                  .expect({ potato: 'om nom',
+                  .expect({ potato: 'om nom', id: 'object',
                             thing: { stuff: 'omg-amazing' },
                             pizza: { amazing: { thing: { newthing: 'stuff' } } }
                             })
@@ -297,7 +297,7 @@ describe('pohjanmaa', function() {
       incr_b: ['create', function(cb) { async.timesSeries(t, incr_b, cb); }]
     }, function(err) {
       request(maa).get('/object')
-        .expect({a:t, b:t})
+        .expect({a:t, b:t, id: 'object'})
         .end(done);
     });
   });
