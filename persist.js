@@ -22,6 +22,7 @@ module.exports = function(redis) {
       
       var results = [results.default, results.overlay].map(JSON.parse)
       deepExtend(results[0], results[1]);
+      results[0].id = domain;
       callback(null, results[0]);
     });
   }
